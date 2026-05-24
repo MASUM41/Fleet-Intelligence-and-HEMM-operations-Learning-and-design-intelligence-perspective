@@ -1,0 +1,24 @@
+═══════════════════════════════════════════
+  HEMM Fleet ETA Model Summary
+═══════════════════════════════════════════
+
+  Total trips     : 29
+  Normal trips    : 27
+  Outliers        : 2 (queue-delayed)
+  Unique routes   : 4
+  Avg duration    : 346.6 s
+  Avg fuel/trip   : 1.112 L
+
+  Model                        LOO-MAE   Train-R²
+  ───────────────────────── ────────── ──────────
+  Linear Regression               19.6     0.6641
+  Random Forest                   11.8     0.9280
+  Gradient Boosting               11.3     1.0000
+
+  Best model : Gradient Boosting
+  LOO-MAE    : 11.3s  (3.3% of avg trip)
+
+  Notes
+  - 29 trips is small; collect 100+ for reliable generalisation.
+  - Outlier trips (queue-delayed) excluded from training.
+  - Add graph-distance features next for Semester 2 improvements.
