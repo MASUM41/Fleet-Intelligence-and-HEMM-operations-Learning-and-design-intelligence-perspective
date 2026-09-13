@@ -1,0 +1,1 @@
+sim_time_s,wall_time,truck_id,x_m,y_m,speed_kmh,accel_ms2,cargo_kg,op_state,current_node,target_node,fuel_L_step,co2_kg_step

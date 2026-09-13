@@ -1,0 +1,7 @@
+policy,total_trips,throughput_tph,avg_duration_s,total_coal_t,total_fuel_L,total_co2_kg,mine_balance_std,avg_queue_depth,fuel_per_trip_L,coal_per_trip_kg,mine_match_rate,duration_mae_s,sim_horizon_s,composite_score,composite_throughput_tph,composite_total_fuel_L,composite_avg_duration_s,composite_mine_balance_std,composite_rank
+ETA_AWARE,182,8.15,196.4,181.0,114.994,308.183,12.36,0.0,0.6318,994.5,64.3,65.7,80408.1,60.0,0.0,100.0,100.0,100.0,1
+ROUND_ROBIN,182,8.28,196.7,181.0,115.156,308.619,12.36,0.0,0.6327,994.5,57.1,85.3,79167.5,55.2,100.0,0.6,0.0,100.0,2
+FIFO,182,8.28,196.7,181.0,115.157,308.62,12.36,0.0,0.6327,994.5,56.6,85.0,79167.6,55.0,100.0,0.0,0.0,100.0,3
+LOAD_BALANCE,182,8.28,196.7,181.0,115.157,308.62,12.36,0.0,0.6327,994.5,56.6,85.0,79167.6,55.0,100.0,0.0,0.0,100.0,3
+GREEDY_NEAREST,182,8.15,196.5,181.0,115.046,308.322,12.36,0.0,0.6321,994.5,64.3,65.2,80421.1,45.4,0.0,68.1,66.7,100.0,5
+ETA_MIN,182,8.15,196.5,181.0,115.047,308.325,12.36,0.0,0.6321,994.5,64.3,65.2,80421.1,45.2,0.0,67.5,66.7,100.0,6

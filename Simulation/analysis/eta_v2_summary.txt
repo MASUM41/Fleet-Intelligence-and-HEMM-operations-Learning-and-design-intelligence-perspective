@@ -1,0 +1,72 @@
+ETA v2 Summary (Grouped CV by run_id)
+====================================================
+
+Trips used              : 182
+Runs (groups)           : 9
+Unique routes           : 13
+Avg trip duration (s)   : 231.36
+
+dispatch_baseline
+-----------------
+Model                    MAE(s)    MAPE(%)       R2
+Linear Regression         77.17      26.89    0.000
+Random Forest             64.60      21.82    0.175
+Gradient Boosting         70.60      24.97    0.100
+Best: Random Forest (MAE=64.60s)
+
+dispatch_graph
+--------------
+Model                    MAE(s)    MAPE(%)       R2
+Linear Regression         77.97      27.18   -0.014
+Random Forest             63.98      21.60    0.181
+Gradient Boosting         70.53      24.78    0.106
+Best: Random Forest (MAE=63.98s)
+
+dispatch_queue
+--------------
+Model                    MAE(s)    MAPE(%)       R2
+Linear Regression         85.32      33.13   -0.029
+Random Forest             68.01      25.27    0.175
+Gradient Boosting         78.89      30.96    0.027
+Best: Random Forest (MAE=68.01s)
+
+dispatch_full
+-------------
+Model                    MAE(s)    MAPE(%)       R2
+Linear Regression         86.30      33.46   -0.047
+Random Forest             67.68      25.12    0.177
+Gradient Boosting         77.34      29.94    0.046
+Best: Random Forest (MAE=67.68s)
+
+midtrip_baseline
+----------------
+Model                    MAE(s)    MAPE(%)       R2
+Linear Regression         88.89      71.41  -25.476
+Random Forest             35.09      11.95    0.442
+Gradient Boosting         52.02      17.77    0.337
+Best: Random Forest (MAE=35.09s)
+
+midtrip_graph
+-------------
+Model                    MAE(s)    MAPE(%)       R2
+Linear Regression         88.31      71.22  -25.477
+Random Forest             35.58      12.07    0.444
+Gradient Boosting         48.87      16.95    0.395
+Best: Random Forest (MAE=35.58s)
+
+midtrip_queue
+-------------
+Model                    MAE(s)    MAPE(%)       R2
+Linear Regression         88.57      67.84  -17.747
+Random Forest             36.27      12.49    0.439
+Gradient Boosting         49.04      17.57    0.416
+Best: Random Forest (MAE=36.27s)
+
+midtrip_full
+------------
+Model                    MAE(s)    MAPE(%)       R2
+Linear Regression         86.62      67.27  -17.733
+Random Forest             34.06      11.80    0.448
+Gradient Boosting         43.80      15.73    0.412
+Best: Random Forest (MAE=34.06s)
+

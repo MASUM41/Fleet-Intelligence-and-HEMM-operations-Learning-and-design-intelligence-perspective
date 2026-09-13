@@ -5,6 +5,8 @@ import random
 import pickle
 import os
 import json
+from sim_logger import SimLogger
+from analytics_overlay import AnalyticsOverlay
 
 # --- Module Imports ---
 from Map import map_loader as map_data
@@ -133,10 +135,18 @@ def get_path_from_nodes(route_node_names, waypoints_map):
         final_waypoints.append(map_data.NODES[route_node_names[-1]])
     return final_waypoints
 
-def run_simulation():
+def run_simulation(headless=False, duration_s=None, sim_speed_init=1.0):
+    if headless:
+        os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
+        os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
+
     pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
-    pygame.display.set_caption("Pro Trucker Fleet - Advanced Dispatcher + Map Editing Preserved")
+    if headless:
+        screen = pygame.display.set_mode((1, 1))
+        overlay = None
+    else:
+        screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
+        overlay = AnalyticsOverlay(screen)
     clock = pygame.time.Clock()
     font = pygame.font.SysFont("Consolas", 18)
 
@@ -303,12 +313,16 @@ def run_simulation():
     mouse_dragging, last_mouse_pos = False, None
     selected_car_idx = 0
     paused = False
-    sim_speed = 1.0
+    sim_speed = sim_speed_init
+
+    if headless:
+        print(f"Headless collection: duration={duration_s}s, speed={sim_speed}x")
 
     # --- Initial MPC run for all trucks ---
     for car in cars:
         car.run_mpc([])
-
+    sim_time = 0.0
+    logger   = SimLogger()
     # --- Timers ---
     mpc_timer = 0.0
     MPC_INTERVAL = 0.1 # 10Hz
@@ -318,58 +332,73 @@ def run_simulation():
     
     global_opt_timer = 0.0
     GLOBAL_OPT_INTERVAL = 30.0 # Run heavy optimization every 30 seconds
+    last_status_print = 0.0
 
     # --- Main Loop ---
     running = True
     while running:
-        frame_dt = clock.tick(60) / 1000.0 # Physics runs at ~60Hz
-        if frame_dt == 0: continue
+        if headless:
+            frame_dt = 1.0 / 60.0
+        else:
+            frame_dt = clock.tick(60) / 1000.0
+        if frame_dt == 0:
+            continue
 
         sim_dt = 0.0 if paused else frame_dt * sim_speed
         if sim_dt > 0:
+            sim_time += sim_dt
             mpc_timer += sim_dt
             traffic_update_timer += sim_dt
             global_opt_timer += sim_dt
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT: running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
-                elif event.key in (pygame.K_SPACE, pygame.K_p):
-                    paused = not paused
-                elif event.mod & pygame.KMOD_SHIFT:
-                    if event.key == pygame.K_1:
-                        sim_speed = 1.0
-                    elif event.key == pygame.K_2:
-                        sim_speed = 2.0
-                    elif event.key == pygame.K_3:
-                        sim_speed = 3.0
-                    elif event.key == pygame.K_4:
-                        sim_speed = 4.0
-                    elif event.key == pygame.K_5:
-                        sim_speed = 5.0
-                    elif event.key == pygame.K_0:
-                        sim_speed = 0.5
-                elif event.key == pygame.K_TAB:
-                    selected_car_idx = (selected_car_idx + 1) % len(cars)
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 3: mouse_dragging, last_mouse_pos = True, event.pos
-                elif event.button in (4, 5):
-                    zoom_factor = ZOOM_FACTOR if event.button == 4 else 1 / ZOOM_FACTOR
-                    mouse_pos_m = screen_to_grid(event.pos, scale, pan); scale *= zoom_factor
-                    new_screen_pos = grid_to_screen(mouse_pos_m, scale, pan)
-                    pan[0] += event.pos[0] - new_screen_pos[0]; pan[1] += event.pos[1] - new_screen_pos[1]
-            elif event.type == pygame.MOUSEBUTTONUP and event.button == 3: mouse_dragging = False
-            elif event.type == pygame.MOUSEMOTION and mouse_dragging:
-                dx, dy = event.pos[0] - last_mouse_pos[0], event.pos[1] - last_mouse_pos[1]
-                pan[0] += dx; pan[1] += dy; last_mouse_pos = event.pos
+        if duration_s is not None and sim_time >= duration_s:
+            running = False
 
-        screen.fill(WHITE)
-        g_to_s = lambda pos_m: grid_to_screen(pos_m, scale, pan)
-        g_to_s.scale = scale
-        
-        draw_road_network(screen, g_to_s, scale, waypoints_map)
+        if headless:
+            pygame.event.pump()
+        else:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT: running = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        running = False
+                    elif event.key in (pygame.K_SPACE, pygame.K_p):
+                        paused = not paused
+                    elif event.mod & pygame.KMOD_SHIFT:
+                        if event.key == pygame.K_1:
+                            sim_speed = 1.0
+                        elif event.key == pygame.K_2:
+                            sim_speed = 2.0
+                        elif event.key == pygame.K_3:
+                            sim_speed = 3.0
+                        elif event.key == pygame.K_4:
+                            sim_speed = 4.0
+                        elif event.key == pygame.K_5:
+                            sim_speed = 5.0
+                        elif event.key == pygame.K_0:
+                            sim_speed = 0.5
+                    elif event.key == pygame.K_TAB:
+                        selected_car_idx = (selected_car_idx + 1) % len(cars)
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 3: mouse_dragging, last_mouse_pos = True, event.pos
+                    elif event.button in (4, 5):
+                        zoom_factor = ZOOM_FACTOR if event.button == 4 else 1 / ZOOM_FACTOR
+                        mouse_pos_m = screen_to_grid(event.pos, scale, pan); scale *= zoom_factor
+                        new_screen_pos = grid_to_screen(mouse_pos_m, scale, pan)
+                        pan[0] += event.pos[0] - new_screen_pos[0]; pan[1] += event.pos[1] - new_screen_pos[1]
+                elif event.type == pygame.MOUSEBUTTONUP and event.button == 3: mouse_dragging = False
+                elif event.type == pygame.MOUSEMOTION and mouse_dragging:
+                    dx, dy = event.pos[0] - last_mouse_pos[0], event.pos[1] - last_mouse_pos[1]
+                    pan[0] += dx; pan[1] += dy; last_mouse_pos = event.pos
+
+        if not headless:
+            screen.fill(WHITE)
+            g_to_s = lambda pos_m: grid_to_screen(pos_m, scale, pan)
+            g_to_s.scale = scale
+            draw_road_network(screen, g_to_s, scale, waypoints_map)
+        else:
+            g_to_s = lambda pos_m: grid_to_screen(pos_m, scale, pan)
+            g_to_s.scale = scale
 
         if sim_dt > 0:
             # --- Traffic Update (1Hz) ---
@@ -470,37 +499,42 @@ def run_simulation():
                 accel_vec_m = np.array([car.accel_ms2 * math.cos(car.angle), car.accel_ms2 * math.sin(car.angle)])
                 kf.predict(u=accel_vec_m)
                 kf.update(z=car.get_noisy_measurement())
+            logger.tick(sim_time, sim_dt, cars, dispatcher)
+            if headless and sim_time - last_status_print >= 300.0:
+                trips_done = sum(car.trips_done for car in cars) if hasattr(cars[0], "trips_done") else "?"
+                print(f"  sim_time={sim_time:.0f}s")
+                last_status_print = sim_time
 
-        # Draw ALL trucks (must be outside `if sim_dt > 0` so trucks render when paused)
-        for idx, car in enumerate(cars):
-            if car.path and idx == selected_car_idx:
-                 draw_active_path(screen, car.path, g_to_s, scale)
-            car.draw(screen, g_to_s, is_selected=(idx == selected_car_idx))
+        if not headless:
+            # Draw ALL trucks (must be outside `if sim_dt > 0` so trucks render when paused)
+            for idx, car in enumerate(cars):
+                if car.path and idx == selected_car_idx:
+                     draw_active_path(screen, car.path, g_to_s, scale)
+                car.draw(screen, g_to_s, is_selected=(idx == selected_car_idx))
 
-        # HUD
-        if cars:
-            sel_car = cars[selected_car_idx]
-            hud_texts = [
-                f"Truck ID: {sel_car.id} (TAB to switch)",
-                f"Speed: {sel_car.speed_ms * 3.6:.1f} km/h",
-                f"Mass: {sel_car.current_mass_kg:.0f} kg",
-                f"State: {sel_car.op_state}",
-                f"Dispatcher: Advanced (Swarm Plan)",
-                f"Active Trucks: {len(cars)}",
-                f"Sim Speed: {sim_speed}x | {'Paused' if paused else 'Running'}",
-                "Controls: TAB switch | SPACE play/pause | SHIFT+0 (0.5x) | SHIFT+1-5 (1-5x) | ESC back"
-            ]
-            for i, text in enumerate(hud_texts):
-                screen.blit(font.render(text, True, (0, 0, 0)), (10, 10 + i * 22))
+            # HUD
+            if cars and overlay is not None:
+                sel_car = cars[selected_car_idx]
+                overlay.draw(screen, cars, dispatcher, sim_time, sim_speed, paused, g_to_s, scale)
 
-        # --- Hover Tooltips ---
-        mouse_pos = pygame.mouse.get_pos()
-        hovered = get_hovered_entity(mouse_pos, scale, pan, cars, dispatcher)
-        if hovered:
-            draw_tooltip(screen, mouse_pos, hovered, font)
+            # --- Hover Tooltips ---
+            mouse_pos = pygame.mouse.get_pos()
+            hovered = get_hovered_entity(mouse_pos, scale, pan, cars, dispatcher)
+            if hovered:
+                draw_tooltip(screen, mouse_pos, hovered, font)
 
-        pygame.display.flip()
+            pygame.display.flip()
     pygame.quit()
+    logger.close()
+    if headless:
+        print(f"Headless run complete: sim_time={sim_time:.1f}s")
 
 if __name__ == '__main__':
-    run_simulation()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="HEMM fleet simulation")
+    parser.add_argument("--headless", action="store_true", help="Run without graphics (fast data collection)")
+    parser.add_argument("--duration", type=float, default=None, help="Stop after N seconds of sim time")
+    parser.add_argument("--speed", type=float, default=1.0, help="Simulation speed multiplier")
+    args = parser.parse_args()
+    run_simulation(headless=args.headless, duration_s=args.duration, sim_speed_init=args.speed)
