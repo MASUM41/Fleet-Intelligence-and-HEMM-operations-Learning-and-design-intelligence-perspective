@@ -1,0 +1,29 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Requirements for the RL agent-architecture shootout (rl_experiments/)
+# Tested with Python 3.11 on Windows 10/11.
+#
+#   python -m venv .venv
+#   .\.venv\Scripts\Activate.ps1
+#   pip install -r requirements.txt
+#
+# Everything else used by the suite is Python standard library.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# --- core scientific stack ---
+numpy>=1.26,<2.0        # trip_factory + env arithmetic (2.x untested here)
+pandas>=2.2,<3.0        # trips_graph.csv loading / calibration
+matplotlib>=3.9,<4.0    # report.py learning curves
+
+# --- deep learning (Double DQN) ---
+# DEFAULT PyPI wheel on Windows already bundles CUDA — works on the 4060 lab PC
+# out of the box, and silently falls back to CPU if no GPU is present.
+torch>=2.2
+
+# ── Optional explicit installs (use INSTEAD of the plain torch line above) ──
+# CPU-only (small download, e.g. no-GPU laptop):
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+# CUDA 12.x for the RTX 4060 (pick the newest your driver supports):
+#   pip install torch --index-url https://download.pytorch.org/whl/cu124
+
+# NOTE: pygame is NOT required for the RL experiments — the surrogate env is
+# headless. Install it separately only if you also run the visual simulator.
