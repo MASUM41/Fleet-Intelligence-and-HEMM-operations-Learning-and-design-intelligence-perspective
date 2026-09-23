@@ -1,0 +1,62 @@
+% ---------------------------------------------------------------------
+\section{Results}
+% GOAL: headline findings. Numbers below are the current 5-seed results;
+% update if you retrain.
+% ---------------------------------------------------------------------
+
+% TODO: prose. Key facts to weave in (5-seed means, 100k training trips):
+%  * ALL four RL architectures beat the primary baseline ETA_MIN on reward:
+%      C per-mine  +10.7% (best mean: -267.4)
+%      D universal  +8.8%
+%      B one-for-all +8.1%
+%      A per-truck  +5.2%
+%  * Queue comparison is DISTANCE-NORMALISED (share of trip spent queuing =
+%    wait/duration): C is the only method that also beats ETA_MIN here
+%    (+13.5%); D (-19.1%), B (-20.8%), A (-51.9%) queue more per unit trip.
+%    C therefore beats the baseline on ALL FOUR metrics.
+%  * GREEDY oracle ceiling (-272.3): C's mean (-267.4) sits ABOVE it, i.e.
+%    the learned policy exceeds myopic perfect-foresight dispatch.
+%  * Seed stability: B has one collapsed seed (-287); C is most stable
+%    (see Fig. \ref{fig:seed-spread}).
+%  * Hypotheses H1-H4 (per README/report.py): summarise verdicts.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{6_vs_eta_min.png}
+  \caption{RL architectures vs the primary baseline ETA\_MIN. Queue
+           performance is distance-normalised (share of trip duration
+           spent queuing), since queue exposure grows with trip length.}
+  \label{fig:vs-baseline}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{2_radar_profile.png}
+  \caption{Metric profiles of the four RL architectures against the
+           primary baseline ETA\_MIN (0--100 scale per metric).}
+  \label{fig:radar}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{4_metric_heatmap.png}
+  \caption{Scorecard across all methods and metrics (colour = 0--100 vs
+           best/worst per column; number = actual value).}
+  \label{fig:heatmap}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{5_seed_spread.png}
+  \caption{Seed-to-seed stability of final evaluation reward.
+           ETA\_MIN = primary baseline; GREEDY = oracle ceiling.}
+  \label{fig:seed-spread}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{1_reward_bar.png}
+  \caption{Final evaluation reward of all methods after 100k training
+           trips (bars = mean; dots = individual seeds).}
+  \label{fig:reward-bar}
+\end{figure}

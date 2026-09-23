@@ -1,0 +1,39 @@
+% ---------------------------------------------------------------------
+\section{Introduction}
+% GOAL OF THIS SECTION: motivate the work in 3-4 paragraphs + contributions.
+% (1) Surface mining moves material with fleets of heavy earth-moving
+%     machinery (HEMM); the quality of truck dispatch (which truck goes to
+%     which loader/dump, when) directly drives productivity, fuel burn,
+%     and queueing losses.
+% (2) Industry trend toward autonomous haulage (AHS) makes dispatch a
+%     *control/learning* problem rather than a human-radio problem.
+% (3) Research gap: studying learning-based dispatch and ETA prediction
+%     requires an instrumented environment that (a) reproduces realistic
+%     fleet dynamics (routing, car-following, loader queues, K-turns at
+%     dead-end spurs) and (b) produces ground-truth operational data.
+% (4) What this paper does: we build such a simulator, log a trip-level
+%     dataset, study ETA prediction with progressively richer models, and
+%     run a controlled shootout of four RL dispatch architectures.
+% ---------------------------------------------------------------------
+
+% TODO: motivation paragraphs with citations, e.g. \cite{...}
+
+Our contributions are:
+\begin{itemize}
+  \item A physics-based, instrumented HEMM fleet simulator with a
+        three-tier decision stack (global dispatch planner, congestion-aware
+        routing, iLQR model-predictive truck control) and scripted
+        multi-point turn manoeuvres at dead-end loading spurs. % TODO: expand
+  \item A reproducible data pipeline (per-second telemetry + lifecycle
+        events $\rightarrow$ merged sessions $\rightarrow$ trip/KPI tables)
+        yielding a ground-truth dataset of 182 haulage cycles. % TODO: update if regenerated
+  \item An ETA-prediction study progressing from classical regressors to
+        graph-feature models and GraphSAGE networks on the mine road graph. % TODO
+  \item A controlled comparison of four Double-DQN dispatch architectures
+        (central, per-truck, per-mine bidding, universal mine--dump) against
+        six hand-built policies under an identical fairness contract, using
+        ETA\_MIN as the primary beatable baseline and a perfect-foresight
+        greedy policy as an oracle ceiling. % TODO
+\end{itemize}
+
+% TODO: one short paragraph describing the organisation of the paper.

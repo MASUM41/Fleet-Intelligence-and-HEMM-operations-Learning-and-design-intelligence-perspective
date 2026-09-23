@@ -10,3 +10,6 @@ venv/
 # OS junk
 Thumbs.db
 .DS_Store
+
+# Generated Overleaf bundle (regenerable from paper/)
+hemm_fleet_paper_latex.zip

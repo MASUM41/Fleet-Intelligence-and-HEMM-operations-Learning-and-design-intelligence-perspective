@@ -1,0 +1,51 @@
+% ---------------------------------------------------------------------
+\section{Simulation Platform}
+% GOAL: describe the environment everything else is built on.
+% ---------------------------------------------------------------------
+
+\subsection{Mine Layout and Road Network}
+% TODO: describe the map: ~300 nodes / ~280 edges, 29 load zones, 26 dump
+% zones, 2 fuel stations, regional pit clusters connected to a main hub;
+% roads rendered and driven as Catmull-Rom splines stitched per route.
+% TODO: add a figure: screenshot of the simulator / map viewer.
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=\columnwidth]{map_overview.png}
+%   \caption{Mine road network used in all experiments.}
+%   \label{fig:map}
+% \end{figure}
+
+\subsection{Three-Tier Decision Stack}
+% TODO: (1) global planner assigns per-truck target queues (DP-style
+% lookahead optimiser or greedy); (2) dispatcher tracks coal, reservations,
+% and builds a congestion-weighted road graph (1 Hz); (3) local planner
+% (A*/BFS) routes on that graph; (4) each truck tracks its route with an
+% iLQR MPC (20-step horizon, 10 Hz) using shared planned trajectories for
+% cooperative collision avoidance, plus an ACC car-following layer with
+% SAT-based collision prediction and scripted K-turns at spur terminals.
+
+\subsection{Truck Physics and Operational States}
+% TODO: bicycle kinematics, jerk/steer-rate limits, loaded/empty speed
+% caps, GPS noise + Kalman filter, state machine
+% (GOING\_TO\_ENDPOINT $\rightarrow$ LOADING $\rightarrow$ TURNING\_AROUND
+% $\rightarrow$ RETURNING\_TO\_START $\rightarrow$ UNLOADING $\rightarrow$ ...).
+
+\subsection{Key Parameters}
+% TODO: verify/adjust values; source: Simulation/config.py
+\begin{table}[t]
+  \centering
+  \caption{Main simulation parameters (edit to match final config).}
+  \label{tab:sim-params}
+  \begin{tabular}{ll}
+    \toprule
+    Parameter & Value \\
+    \midrule
+    Trucks (default fleet)      & 3 \\
+    Empty / loaded speed cap    & 30 / 25 km/h \\
+    Load / unload service time  & 3.0 s \\
+    MPC horizon / rate          & 20 steps / 10 Hz \\
+    Safety distance             & 8 m \\
+    Physics step                & 1/60 s \\
+    \bottomrule
+  \end{tabular}
+\end{table}

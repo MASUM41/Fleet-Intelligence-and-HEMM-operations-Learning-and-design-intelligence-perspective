@@ -1,0 +1,86 @@
+% =====================================================================
+%  Paper skeleton — Fleet Intelligence & HEMM Operations project
+%  Compile:  pdflatex main && bibtex main && pdflatex main && pdflatex main
+%            (or simply: latexmk -pdf main)
+%  Class: IEEEtran (conference style, ships with MiKTeX/TeX Live).
+% =====================================================================
+\documentclass[conference]{IEEEtran}
+
+% --- If IEEEtran.cls is unavailable, comment the line above and
+%     uncomment the two lines below for a generic two-column layout ----
+% \documentclass[10pt,twocolumn]{article}
+% \usepackage[a4paper,margin=2cm]{geometry}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{cite}
+\usepackage[hidelinks]{hyperref}
+
+\graphicspath{{figures/}}
+
+% ---------- title & authors (EDIT AUTHORS) -----------------------------
+\title{Fleet Intelligence for Autonomous HEMM Operations:\\
+A Simulation-to-Learning Study of Truck Dispatch\\and ETA Prediction}
+
+\author{
+\IEEEauthorblockN{Author One\IEEEauthorrefmark{1}, Author Two\IEEEauthorrefmark{2}, Author Three\IEEEauthorrefmark{3}}
+\IEEEauthorblockA{\IEEEauthorrefmark{1}Department / Institute, email@example.com}
+\IEEEauthorblockA{\IEEEauthorrefmark{2}Department / Institute, email@example.com}
+\IEEEauthorblockA{\IEEEauthorrefmark{3}Department / Institute, email@example.com}
+}
+
+\begin{document}
+\maketitle
+
+% =====================================================================
+\begin{abstract}
+Surface-mining productivity hinges on the dispatch of heavy earth-moving
+machinery (HEMM) fleets: every truck assignment trades travel time against
+loader queues and coal depletion. Learning-based dispatch and arrival-time
+prediction are promising, but studying them requires an instrumented
+environment that reproduces realistic fleet dynamics. We present an
+end-to-end fleet-intelligence pipeline. First, a physics-based simulator in
+which haul trucks---driven by iLQR model-predictive controllers with
+cooperative collision avoidance and adaptive cruise following---operate
+under a three-tier decision stack (global dispatch planner,
+congestion-aware routing, local path tracking) on a $\sim$300-node mine
+road network, logging per-second telemetry and lifecycle events. From 182
+logged haulage cycles we build trip-level datasets and study ETA prediction
+with models of increasing structure, from classical regressors to
+GraphSAGE networks on the road graph. We then train four Double-DQN
+dispatch architectures---central, per-truck, per-mine bidding, and a
+universal mine--dump policy---under an identical fairness contract against
+six hand-built policies, using the queue-aware rule ETA\_MIN as the primary
+baseline and a perfect-foresight greedy rule as an oracle ceiling. All four
+learned architectures beat ETA\_MIN by $+5.2\%$ to $+10.7\%$ mean reward,
+and the best (per-mine bidding, $-267.4$) exceeds the oracle ceiling
+($-272.3$). The results suggest that centralised value learning recovers
+near-oracle dispatch quality from realistic observations alone.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Heavy earth-moving machinery (HEMM), fleet dispatch, autonomous haulage,
+model predictive control, reinforcement learning, double DQN,
+ETA prediction, graph neural networks, mining simulation.
+\end{IEEEkeywords}
+
+% =====================================================================
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_simulation_platform}
+\input{sections/04_data_pipeline}
+\input{sections/05_eta_prediction}
+\input{sections/06_dispatch_rl}
+\input{sections/07_results}
+\input{sections/08_discussion}
+\input{sections/09_conclusion}
+
+% =====================================================================
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

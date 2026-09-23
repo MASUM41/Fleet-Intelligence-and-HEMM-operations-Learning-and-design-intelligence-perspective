@@ -1,0 +1,32 @@
+% ---------------------------------------------------------------------
+\section{Discussion}
+% GOAL: honest interpretation + limitations.
+% ---------------------------------------------------------------------
+
+\subsection{Why Simple Heuristics Are Hard to Beat Here}
+% TODO: reward = -duration; most of a trip's duration is fixed physics
+% (distances, service times); the policy-controllable slice is thin, and
+% queue-aware myopic rules (ETA_MIN) already capture most of it --- the
+% total headroom from blind dispatch (FIFO -404.5) to the oracle (-272.3)
+% is only ~130 reward points, and ETA_MIN captures ~80\% of it.
+% Beating ETA_MIN by +5..11\% therefore means capturing nearly all
+% remaining headroom, not a small gain.
+
+\subsection{Limitations}
+% TODO: (1) surrogate env fitted on real-trip medians with symmetric
+% jitter -> rare emergent congestion (e.g. the 1689 s outlier trips) is
+% under-represented; (2) ETA_AWARE degenerate in this env (residual
+% bias $\approx$ 0); (3) full-fidelity sim currently validated at 3 trucks
+% --- larger fleets stress the interaction layer (queues at single-lane
+% spurs, K-turn conflicts); (4) fuel model is a physics proxy without
+% grade/elevation.
+
+\subsection{Threats to Validity}
+% TODO: single map topology; median-calibrated timetable; eval on the
+% same 20-config suite for all methods (fair but shared); seed variance.
+
+\subsection{Future Work}
+% TODO: multi-objective rewards (fuel, balance, queue externalities) that
+% create genuine headroom over myopic rules; information-restricted
+% baselines (naive vs oracle greedy); scaling the full-fidelity simulator
+% to larger fleets; sim-to-real transfer discussion.

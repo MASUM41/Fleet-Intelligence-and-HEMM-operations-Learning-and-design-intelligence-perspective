@@ -1,0 +1,44 @@
+% ---------------------------------------------------------------------
+\section{Data Collection and Analytics Pipeline}
+% GOAL: explain how raw simulation becomes analysis-ready datasets.
+% ---------------------------------------------------------------------
+
+\subsection{Logging Layer}
+% TODO: two CSV streams per session written by SimLogger:
+%  * telemetry (1 Hz per truck): position, speed, acceleration, cargo,
+%    operational state, current/target node, per-step fuel \& CO$_2$
+%    (physics-derived proxy from traction power);
+%  * events (edge-triggered): ARRIVE/LOAD/DEPART/UNLOAD lifecycle
+%    transitions incl. per-trip fuel, CO$_2$ and duration in metadata.
+% Mention: headless mode (--headless --speed 5) for fast collection.
+
+\subsection{Session Merging and KPI Extraction}
+% TODO: merge\_logs.py time-offsets sessions into one timeline with run
+% tags; kpi\_extractor.py rebuilds per-trip records (6 lifecycle
+% timestamps $\rightarrow$ 4 sub-durations) plus fleet KPIs (1-min bins),
+% queue events, and idle periods.
+
+\subsection{The Trip Dataset}
+% TODO: 182 completed trips; mean duration 231.4 s (median 229.8,
+% max 1689 --- long-tail congestion events); trips.csv schema table below
+% (trim/adjust as needed).
+\begin{table}[t]
+  \centering
+  \caption{Trip-level record schema (analysis/trips.csv).}
+  \label{tab:trips-schema}
+  \begin{tabular}{ll}
+    \toprule
+    Field group & Columns (examples) \\
+    \midrule
+    Identity     & trip\_id, run\_id, truck\_id, load\_zone, dump\_zone \\
+    Timestamps   & depart\_time\_s \ldots unload\_complete\_s \\
+    Durations    & travel\_to\_mine\_s, load\_wait\_s, travel\_to\_dump\_s, \\
+                 & unload\_wait\_s, total\_trip\_duration\_s \\
+    Payload      & cargo\_kg, fuel\_L, co2\_kg \\
+    Graph feats. & road\_dist\_to\_mine\_m, detour\_factor (trips\_graph.csv) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% TODO (optional): EDA findings --- route medians, queue behaviour,
+% outlier trips; reference analysis/report_eda_task3.md.

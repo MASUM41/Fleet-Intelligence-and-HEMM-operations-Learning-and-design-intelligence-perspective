@@ -299,9 +299,15 @@ def graph6_vs_baseline():
     g = ALL.loc["ETA_MIN"]           # primary baseline: strongest beatable hand rule
     rows = ["C per-mine", "D universal", "B one-for-all", "A per-truck"]
     specs = [("reward", True), ("throughput", True),
-             ("mean_duration", False), ("queue_wait", False)]
+             ("mean_duration", False), ("queue_share", False)]
 
     def pct(m, col, hib):
+        # queue wait scales with trip length -> compare the *share* of the
+        # trip spent queuing (wait / duration), not the raw seconds
+        if col == "queue_share":
+            v = ALL.loc[m, "queue_wait"] / ALL.loc[m, "mean_duration"]
+            gv = g["queue_wait"] / g["mean_duration"]
+            return (gv / v - 1) * 100
         v, gv = ALL.loc[m, col], g[col]
         if col == "reward":                # both negative: use signed difference
             return (v - gv) / abs(gv) * 100
@@ -328,10 +334,10 @@ def graph6_vs_baseline():
     ax.set_xlabel("% better (+)  or  worse (−)  than ETA_MIN (primary baseline)")
     handles = [plt.Rectangle((0, 0), 1, 1, color="#666666", alpha=1.0 - 0.18 * k)
                for k in range(4)]
-    ax.legend(handles, ["reward", "throughput", "trip duration", "queue wait"],
+    ax.legend(handles, ["reward", "throughput", "trip duration", "queue share"],
               fontsize=9, loc="upper left")
     ax.set_title("Each RL design measured against ETA_MIN — the strongest beatable hand rule\n"
-                 "(bars within a group: darkest = reward … lightest = queue wait)")
+                 "(darkest = reward … lightest = queue share; queue = wait/duration, distance-normalised)")
     ax.set_xlim(-65, 36)
     save(fig, "6_vs_eta_min.png")
 

@@ -1,0 +1,68 @@
+% ---------------------------------------------------------------------
+\section{Learning to Dispatch: RL Architecture Shootout}
+% GOAL: the central experiment --- which RL framing fits haul-truck dispatch?
+% ---------------------------------------------------------------------
+
+\subsection{A Fast Surrogate Environment}
+% TODO: "calendar simulator" --- a trip reduced to 5 numbers (travel legs,
+% queue waits, service) sampled from per-route medians fitted on the real
+% 182 trips; event queue + FCFS loader booking + coal depletion;
+% $\sim$1 ms/trip vs $\sim$77 s/trip in the full simulator.
+
+\subsection{Candidate Architectures}
+% TODO: Table of A/B/C/D (agents, action space, observation dims).
+\begin{table}[t]
+  \centering
+  \caption{The four candidate dispatch architectures (Double DQN).}
+  \label{tab:architectures}
+  \begin{tabular}{llll}
+    \toprule
+    Method & Agents & Action space & Observation \\
+    \midrule
+    B one-for-all & 1 central  & mine (9)          & global fleet (49) \\
+    A per-truck   & $N$ indep. & mine (9)          & per-truck (38)    \\
+    C per-mine    & 9 bidders  & bid level (5)     & per-mine (7)      \\
+    D universal   & 1 central  & mine$\times$dump (54, masked) & global+dump (55) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Fairness Contract}
+% TODO: same env, reward $r=-\text{trip\_duration}/100$, 20-config eval
+% suite (fleet 4--12 $\times$ coal scale 0.6--2.0), Double DQN
+% $\gamma{=}0.97$, replay 50k, n-step 3, $\varepsilon$ 1.0$\to$0.05,
+% target sync 500 \cite{vanhasselt2016deep,mnih2015human}.
+
+\subsection{Baselines: Floor, Primary, and Oracle Ceiling}
+% TODO: describe the six hand policies. Key framing:
+%  * PRIMARY BASELINE = ETA_MIN (strongest beatable rule: queue-aware
+%    cycle-time minimisation);
+%  * ORACLE CEILING = GREEDY_NEAREST (reads the env's exact future queue
+%    state --- no realistic dispatcher can match it);
+%  * FLOOR = FIFO / LOAD_BALANCE / ROUND_ROBIN;
+%  * note ETA_AWARE collapses onto ETA_MIN in this environment.
+\begin{table}[t]
+  \centering
+  \caption{Hand-policy ladder (mean reward over the 20-config suite).}
+  \label{tab:baseline-ladder}
+  \begin{tabular}{llr}
+    \toprule
+    Role & Policy & Mean reward \\
+    \midrule
+    Oracle ceiling & GREEDY\_NEAREST & $-272.3$ \\
+    \textbf{Primary baseline} & \textbf{ETA\_MIN} & $\mathbf{-299.5}$ \\
+    Duplicate      & ETA\_AWARE      & $-299.5$ \\
+    Floor          & LOAD\_BALANCE   & $-398.3$ \\
+    Floor          & ROUND\_ROBIN    & $-399.6$ \\
+    Floor          & FIFO            & $-404.5$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{learning_curves.png}
+  \caption{Evaluation reward during training (mean over 5 seeds).
+           Dashed lines: hand-policy references.}
+  \label{fig:learning-curves}
+\end{figure}

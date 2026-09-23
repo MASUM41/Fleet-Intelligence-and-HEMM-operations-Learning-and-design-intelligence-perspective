@@ -1,0 +1,27 @@
+% ---------------------------------------------------------------------
+\section{ETA Prediction for Haulage Cycles}
+% GOAL: the learning-to-predict-trip-duration study.
+% ---------------------------------------------------------------------
+
+\subsection{Problem Formulation and Features}
+% TODO: target = total\_trip\_duration\_s; feature sets: categorical
+% (zones, truck), operational (cargo, trip number), queue proxies
+% (rolling queue depth), road-graph features (Dijkstra distances, detour
+% factor), route-relative ratios.
+
+\subsection{Classical Baselines}
+% TODO: Linear Regression / Random Forest / Gradient Boosting with
+% Leave-One-Out CV; best LOO-MAE $\approx$ 15.9 s ($\approx$ 7.4\% of the
+% 213.7 s mean trip). Update with final numbers from
+% analysis/eta\_model\_summary.txt.
+
+\subsection{Graph Features and Queue-Aware Models (v2)}
+% TODO: GroupKFold by run\_id to prevent session leakage; dispatch-time vs
+% mid-trip prediction variants; reference analysis/eta\_v2\_summary.txt.
+
+\subsection{Graph Neural Network Models}
+% TODO: GraphSAGE over the road graph (node features: type, degree, edge
+% weights; trip head on src/dst embeddings + trip features); LOO-CV vs
+% holdout variants \cite{hamilton2017graphsage}.
+
+% TODO: results table comparing model families (MAE / RMSE / \% of mean).
