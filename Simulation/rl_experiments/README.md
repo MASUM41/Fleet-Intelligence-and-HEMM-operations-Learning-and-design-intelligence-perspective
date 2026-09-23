@@ -18,6 +18,13 @@ Which RL agent framing is right for haul-truck dispatch? This suite trains all
 four candidates under an **identical fairness contract** and compares them
 against 6 hand-built baseline policies.
 
+**Primary baseline: ETA_MIN** — the strongest *beatable* hand rule (queue-aware
+cycle-time minimization). `GREEDY_NEAREST` is kept only as an **oracle ceiling**:
+it reads the env's exact future queue state (`next_free`), information no real
+dispatcher has, so no learned policy is expected to beat it. `ETA_AWARE`
+collapses onto `ETA_MIN` in this env (residual bias ≈ 0); FIFO / LOAD_BALANCE /
+ROUND_ROBIN form the naive floor.
+
 | Method | Code | Agent(s) | Action | Observation |
 |---|---|---|---|---|
 | **B** one-for-all | `b` | 1 central DDQN | mine (9) | global fleet state (49) |
@@ -42,7 +49,7 @@ python -m rl_experiments.run --method baselines --eval-configs 4
 python -m rl_experiments.report
 ```
 
-### 1. Reference floor: 6 hand baselines (no learning, ~30 s)
+### 1. Reference floor: 6 hand baselines (no learning, ~30 s; ETA_MIN = primary baseline)
 ```powershell
 python -m rl_experiments.run --method baselines --eval-configs 20
 ```
@@ -80,7 +87,7 @@ python -m rl_experiments.report
 |---|---|
 | `{method}_s{seed}_curve.csv` | eval metrics every `--eval-every` trips |
 | `baselines_eval.csv` | per-config metrics for the 6 hand policies |
-| `learning_curves.png` | reward & duration curves, mean ± seed-range, baseline lines |
+| `learning_curves.png` | reward & duration curves, mean ± seed-range, baseline lines (ETA_MIN primary) |
 | console tables | final comparison + hypothesis check (H1–H4) |
 
 ## Method notes / known behaviors

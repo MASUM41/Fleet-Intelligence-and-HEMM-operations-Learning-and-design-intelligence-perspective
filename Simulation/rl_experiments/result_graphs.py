@@ -147,7 +147,7 @@ def graph1_reward_bar():
 
 # ================================================================ 2. radar profile
 def graph2_radar():
-    shown = ["C per-mine", "D universal", "B one-for-all", "A per-truck", "GREEDY_NEAREST"]
+    shown = ["C per-mine", "D universal", "B one-for-all", "A per-truck", "ETA_MIN"]
     axes_metrics = METRICS[:4]          # fuel & balance: identical (±<0.5%) -> omitted
     labels = [d for _, d, _, _ in axes_metrics]
     norm = {}
@@ -276,10 +276,14 @@ def graph5_seed_spread():
         ax.vlines(i, seeds.min(), seeds.max(), color=METHOD_COLOR[m],
                   lw=1.2, alpha=0.5, zorder=2)
         xlabels.append(f"{m}\n(mean {mean:.1f})")
-    for name, y in [("GREEDY_NEAREST", -272.3), ("ETA_MIN", -299.5), ("FIFO", -404.5)]:
-        ax.axhline(y, color="#888888", ls="--", lw=1.1, zorder=1)
-        ax.text(3.58, y + 1.0, name, va="bottom", ha="right", fontsize=8.5,
-                color="#555555")
+    # Reference lines: ETA_MIN = primary baseline; GREEDY = oracle ceiling; FIFO = floor
+    for label, name, color, ls in [("ETA_MIN (baseline)", "ETA_MIN", "#C0392B", "-"),
+                                   ("GREEDY (oracle ceiling)", "GREEDY_NEAREST", "#2C3E50", "--"),
+                                   ("FIFO (floor)", "FIFO", "#888888", ":")]:
+        y = ALL.loc[name, "reward"]
+        ax.axhline(y, color=color, ls=ls, lw=1.2, zorder=1)
+        ax.text(3.58, y + 1.0, label, va="bottom", ha="right", fontsize=8.5,
+                color=color)
     ax.set_xticks(range(len(order)))
     ax.set_xticklabels(xlabels)
     ax.set_ylabel("final reward  (higher = better)")
@@ -290,9 +294,9 @@ def graph5_seed_spread():
     save(fig, "5_seed_spread.png")
 
 
-# ================================================================ 6. vs GREEDY %
-def graph6_vs_greedy():
-    g = ALL.loc["GREEDY_NEAREST"]
+# ================================================================ 6. vs ETA_MIN (primary baseline) %
+def graph6_vs_baseline():
+    g = ALL.loc["ETA_MIN"]           # primary baseline: strongest beatable hand rule
     rows = ["C per-mine", "D universal", "B one-for-all", "A per-truck"]
     specs = [("reward", True), ("throughput", True),
              ("mean_duration", False), ("queue_wait", False)]
@@ -321,15 +325,15 @@ def graph6_vs_greedy():
     ax.axvline(0, color="#222222", lw=1.2)
     ax.set_yticks(yticks)
     ax.set_yticklabels(ylabels)
-    ax.set_xlabel("% better (+)  or  worse (−)  than GREEDY_NEAREST")
+    ax.set_xlabel("% better (+)  or  worse (−)  than ETA_MIN (primary baseline)")
     handles = [plt.Rectangle((0, 0), 1, 1, color="#666666", alpha=1.0 - 0.18 * k)
                for k in range(4)]
     ax.legend(handles, ["reward", "throughput", "trip duration", "queue wait"],
-              fontsize=9, loc="lower right")
-    ax.set_title("Each RL design measured against the best hand-written rule\n"
+              fontsize=9, loc="upper left")
+    ax.set_title("Each RL design measured against ETA_MIN — the strongest beatable hand rule\n"
                  "(bars within a group: darkest = reward … lightest = queue wait)")
-    ax.set_xlim(-78, 15)
-    save(fig, "6_vs_greedy.png")
+    ax.set_xlim(-65, 36)
+    save(fig, "6_vs_eta_min.png")
 
 
 # ================================================================ 7. bar panels
@@ -464,7 +468,7 @@ if __name__ == "__main__":
     graph3_scatter()
     graph4_heatmap()
     graph5_seed_spread()
-    graph6_vs_greedy()
+    graph6_vs_baseline()
     graph7_bar_panels()
     graph8_scatter()
     graph9_pies()
